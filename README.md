@@ -27,6 +27,11 @@ Source Code of MCP OneKey Proxy Server visit Github (https://github.com/aiagenta
 
 # List of MCP Servers Requires Keys Supported By OneKey MCP Router
 
+## Beta Test OneKey Router Keys
+```
+export DEEPNLP_ONEKEY_ROUTER_ACCESS=BETA_TEST_KEY_OCT_2025 
+```
+
 ## List of MCP Router URL for Other MCP Configuration
 
 | Category         | MCP Server        | Config                                                                                                                                  | Config Http URL                                                                                          | Web Demo Playground                                                                                                                     |
