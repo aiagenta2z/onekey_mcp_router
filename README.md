@@ -9,6 +9,8 @@ Calling MCPs or AI Agent APIs by the credit system will reduce the costs of plan
 2. OneKey Authentication of various MCP or AI Agent service provides
 3. Revenue Sharing Initiative : Support MCP APIs and AI Agents Moneytization By Credit System
 
+<img width="2312" height="1680" alt="510680652-1bc97bed-6e53-4aa7-95b3-8c55fca7a700" src="https://github.com/user-attachments/assets/7d5852cc-e67e-4c39-8e77-40899f5c0806" />
+
 
 ```mermaid
 
