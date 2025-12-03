@@ -9,6 +9,8 @@ Calling MCPs or AI Agent APIs by the credit system will reduce the costs of plan
 2. OneKey Authentication of various MCP or AI Agent service provides
 3. Revenue Sharing Initiative : Support MCP APIs and AI Agents Moneytization By Credit System
 
+<img width="2312" height="1680" alt="510680652-1bc97bed-6e53-4aa7-95b3-8c55fca7a700" src="https://github.com/user-attachments/assets/7d5852cc-e67e-4c39-8e77-40899f5c0806" />
+
 
 ```mermaid
 
@@ -25,178 +27,12 @@ graph LR
 Source Code of MCP OneKey Proxy Server visit Github (https://github.com/aiagenta2z/mcp-marketplace)
 
 
-# Usage
-
-## 1. Client (Claude/Cursor/VSCode)
-
-For common MCP clients, onekey mcp router is just an http streaming mcp, there is not need to installation. Just add the mcp config and url to your clients.
-You need to registered OneKey at (https://deepnlp.org/workspace/keys) and generate a new key `DEEPNLP_ONEKEY_ROUTER_ACCESS` for scene 'DEEPNLP_ONEKEY_ROUTER'
-
-Then put the config in your client, for example, if you want to add google-maps and perplexity, just add
-
-
-```
-{
-    "mcpServers":{
-        "deepnlp-onekey-google-maps": {
-            "url": "https://agent.deepnlp.org/mcp?server_name=google-maps&onekey=BETA_TEST_KEY_OCT_2025"
-        },
-        "deepnlp-onekey-perplexity": {
-            "url": "https://agent.deepnlp.org/mcp?server_name=perplexity&onekey=BETA_TEST_KEY_OCT_2025"
-        }
-    }
-}
-```
-
-
-For other supported MCPs, please see the documents below and find the urls.
-
-
-
-## 2. Batching MCP API Calling via OneKey Router
-
-If you want to deploy an agent workflow, or run tools/agent benchmarks for large batch of requests (high qps), you can install the python package 
-and start a local mcp client with onekey config, which gives rest APIs for you to list tool and run the tool (search map, search_web, generate_chart), etc.
-
-
-
-### 2.1 Quickstart 
-
-This is a simple example of using python client to call google-maps mcps to get_maps_direction from 'Boston' to 'New York' via driving
-For complete list of supported MCPs and server_name, refer the docs: https://www.deepnlp.org/doc/onekey_mcp_router
-
-Install 
-
-
-```
-pip install mcp-marketplace
-```
-
-
-Python Example
-```
-def run_mcp_router_api_example():
-    """
-        # 1. This Function Connects to Google-Maps MCPs and run maps_direction from 'Boston' to 'New York' via driving
-        # 2. Complete List of Supported Tools Use Check : https://www.deepnlp.org/doc/onekey_mcp_router
-    """
-    from mcp_marketplace import OneKeyMCPRouter
-    
-    example = {"server_name":"google-maps","tool_name":"maps_directions","tool_input":{"destination":"New York","mode":"driving","origin":"Boston"}}
-    server_name = example.get("server_name", "")
-
-    ## 1. MCP Initialize POST Request
-    ONEKEY_BETA = "BETA_TEST_KEY_OCT_2025"
-    router = OneKeyMCPRouter(server_name=server_name, onekey=ONEKEY_BETA)
-
-    ## 2. Check Available Tools, tools/list
-    available_tools = router.tools_list(server_name)
-    print (f"Server {server_name}|available_tools {available_tools}")
-
-    ## Your LLM Code
-
-    ## 3. Run Tool, Post tools/call request
-    result_json = router.tools_call(server_name, example.get("tool_name", ""), example.get("tool_input", {}))
-    print (f"Server {server_name}|tool_name {example.get("tool_name", "")} | tool_input {example.get("tool_input", {})} |result_json {result_json}")
-
-```
-
-Result
-```
-Server google-maps|available_tools {'result': {'tools': [{'name': 'maps_geocode', 'description': 'Convert an address into geographic coordinates', 'inputSchema': {'type': 'object', 'properties': {'address': {'type': 'string', 'description': 'The address to geocode'}}, 'required': ['address']}}, {'name': 'maps_reverse_geocode', 'description': 'Convert coordinates into an address', 'inputSchema': {'type': 'object', 'properties': {'latitude': {'type': 'number', 'description': 'Latitude coordinate'}, 'longitude': {'type': 'number', 'description': 'Longitude coordinate'}}, 'required': ['latitude', 'longitude']}}, {'name': 'maps_search_places', 'description': 'Search for places using Google Places API', 'inputSchema': {'type': 'object', 'properties': {'query': {'type': 'string', 'description': 'Search query'}, 'location': {'type': 'object', 'properties': {'latitude': {'type': 'number'}, 'longitude': {'type': 'number'}}, 'description': 'Optional center point for the search'}, 'radius': {'type': 'number', 'description': 'Search radius in meters (max 50000)'}}, 'required': ['query']}}, {'name': 'maps_place_details', 'description': 'Get detailed information about a specific place', 'inputSchema': {'type': 'object', 'properties': {'place_id': {'type': 'string', 'description': 'The place ID to get details for'}}, 'required': ['place_id']}}, {'name': 'maps_distance_matrix', 'description': 'Calculate travel distance and time for multiple origins and destinations', 'inputSchema': {'type': 'object', 'properties': {'origins': {'type': 'array', 'items': {'type': 'string'}, 'description': 'Array of origin addresses or coordinates'}, 'destinations': {'type': 'array', 'items': {'type': 'string'}, 'description': 'Array of destination addresses or coordinates'}, 'mode': {'type': 'string', 'description': 'Travel mode (driving, walking, bicycling, transit)', 'enum': ['driving', 'walking', 'bicycling', 'transit']}}, 'required': ['origins', 'destinations']}}, {'name': 'maps_elevation', 'description': 'Get elevation data for locations on the earth', 'inputSchema': {'type': 'object', 'properties': {'locations': {'type': 'array', 'items': {'type': 'object', 'properties': {'latitude': {'type': 'number'}, 'longitude': {'type': 'number'}}, 'required': ['latitude', 'longitude']}, 'description': 'Array of locations to get elevation for'}}, 'required': ['locations']}}, {'name': 'maps_directions', 'description': 'Get directions between two points', 'inputSchema': {'type': 'object', 'properties': {'origin': {'type': 'string', 'description': 'Starting point address or coordinates'}, 'destination': {'type': 'string', 'description': 'Ending point address or coordinates'}, 'mode': {'type': 'string', 'description': 'Travel mode (driving, walking, bicycling, transit)', 'enum': ['driving', 'walking', 'bicycling', 'transit']}}, 'required': ['origin', 'destination']}}]}, 'jsonrpc': '2.0', 'id': '2'}
-Server google-maps|tool_name maps_directions | tool_input {'destination': 'New York', 'mode': 'driving', 'origin': 'Boston'} |result_json {'jsonrpc': '2.0', 'result': {'success': True, 'content': [{'type': 'text', 'text': '{\n  "routes": [\n    {\n      "summary": "I-90 W",\n      "distance": {\n        "text": "214 mi",\n        "value": 344980\n      },\n      "duration": {\n        "text": "3 hours 45 mins",\n        "value": 13480\n      },\n      "steps": [\n        {\n          "instructions": "Head <b>north</b> on <b>Federal St</b> toward <b>Milk St</b>",\n          "distance": {\n            "text": "469 ft",\n            "value": 143\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 47\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Turn <b>right</b> onto <b>Milk St</b>",\n          "distance": {\n            "text": "118 ft",\n            "value": 36\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 18\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Turn <b>right</b> at the 1st cross street onto <b>Congress St</b>",\n          "distance": {\n            "text": "0.2 mi",\n            "value": 355\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 79\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Turn <b>right</b> onto <b>Purchase St</b>",\n          "distance": {\n            "text": "89 ft",\n            "value": 27\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 6\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Take the <b>I-93 S</b> ramp on the <b>left</b> to <b>I-90 W</b>/<wbr/><b>Quincy</b>/<wbr/><b>Worcester</b>",\n          "distance": {\n            "text": "0.5 mi",\n            "value": 749\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 62\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Take the <b>I-90 W</b> ramp",\n          "distance": {\n            "text": "0.1 mi",\n            "value": 189\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 12\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Take the <b>Route 90 W</b> ramp to <b>Masspike</b>/<wbr/><b>Worcester</b>",\n          "distance": {\n            "text": "0.2 mi",\n            "value": 307\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 20\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Merge onto <b>I-90 W</b><div style=\\"font-size:0.9em\\">Toll road</div>",\n          "distance": {\n            "text": "55.2 mi",\n            "value": 88825\n          },\n          "duration": {\n            "text": "53 mins",\n            "value": 3154\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Take exit <b>78</b> for <b>I-84</b> toward <b>Hartford Connecticut</b>/<wbr/><b>N.Y.City</b><div style=\\"font-size:0.9em\\">Toll road</div>",\n          "distance": {\n            "text": "0.7 mi",\n            "value": 1139\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 49\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Continue onto <b>I-84</b><div style=\\"font-size:0.9em\\">Toll road</div><div style=\\"font-size:0.9em\\">Entering Connecticut</div>",\n          "distance": {\n            "text": "40.9 mi",\n            "value": 65866\n          },\n          "duration": {\n            "text": "36 mins",\n            "value": 2141\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Take exit <b>57</b> on the <b>left</b> for <b>CT-15 S</b> toward <b>I-91 S</b>/<wbr/><b>Charter Oak Bridge</b>/<wbr/><b>N.Y.City</b>",\n          "distance": {\n            "text": "0.6 mi",\n            "value": 899\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 32\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Continue onto <b>CT-15 S</b>",\n          "distance": {\n            "text": "0.5 mi",\n            "value": 874\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 32\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Continue onto <b>CT-15 S</b>/<wbr/><b>US-5 S</b>",\n          "distance": {\n            "text": "0.8 mi",\n            "value": 1310\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 50\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Take the exit onto <b>I-91 S</b>",\n          "distance": {\n            "text": "17.1 mi",\n            "value": 27465\n          },\n          "duration": {\n            "text": "15 mins",\n            "value": 928\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Take exit <b>17</b> to merge onto <b>CT-15 S</b>",\n          "distance": {\n            "text": "30.2 mi",\n            "value": 48619\n          },\n          "duration": {\n            "text": "28 mins",\n            "value": 1699\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Take exit <b>34</b> for <b>State Rte 8 S</b>/<wbr/><b>State Rte 108</b> toward <b>Bridgeport</b>",\n          "distance": {\n            "text": "0.6 mi",\n            "value": 1033\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 48\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Merge onto <b>CT-8 S</b>/<wbr/><b>State Rte 8 S</b> via the ramp to <b>Bridgeport</b>",\n          "distance": {\n            "text": "5.3 mi",\n            "value": 8493\n          },\n          "duration": {\n            "text": "5 mins",\n            "value": 313\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Take exit <b>1B</b> to merge onto <b>I-95 S</b> toward <b>N.Y. City</b><div style=\\"font-size:0.9em\\">Entering New York</div>",\n          "distance": {\n            "text": "45.2 mi",\n            "value": 72822\n          },\n          "duration": {\n            "text": "49 mins",\n            "value": 2936\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Keep <b>right</b> to stay on <b>I-95 S</b>, follow signs for <b>Triboro Brg</b>/<wbr/><b>Geo Washington Brg</b>",\n          "distance": {\n            "text": "0.6 mi",\n            "value": 1001\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 45\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Keep <b>left</b> to continue on <b>I-278 W</b>, follow signs for <b>Robert F. Kennedy Brg</b>/<wbr/><b>Manhattan</b>",\n          "distance": {\n            "text": "4.7 mi",\n            "value": 7618\n          },\n          "duration": {\n            "text": "6 mins",\n            "value": 370\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Keep <b>left</b> to stay on <b>I-278 W</b>, follow signs for <b>Triboro Br</b>/<wbr/><b>Manhattan</b>/<wbr/><b>Queens</b><div style=\\"font-size:0.9em\\">Toll road</div>",\n          "distance": {\n            "text": "0.7 mi",\n            "value": 1066\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 68\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Take exit <b>46</b> toward <b>Manhattan</b><div style=\\"font-size:0.9em\\">Toll road</div>",\n          "distance": {\n            "text": "0.2 mi",\n            "value": 262\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 18\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Merge onto <b>Robert F. Kennedy Brg</b><div style=\\"font-size:0.9em\\">Toll road</div>",\n          "distance": {\n            "text": "0.4 mi",\n            "value": 670\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 44\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Take the <b>FDR Dr S</b> exit<div style=\\"font-size:0.9em\\">Toll road</div>",\n          "distance": {\n            "text": "0.4 mi",\n            "value": 668\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 48\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Continue onto <b>FDR Dr</b>",\n          "distance": {\n            "text": "7.9 mi",\n            "value": 12792\n          },\n          "duration": {\n            "text": "13 mins",\n            "value": 776\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Take exit <b>2</b> toward <b>Manhattan Civic Ctr</b><div style=\\"font-size:0.9em\\">Toll road</div>",\n          "distance": {\n            "text": "0.1 mi",\n            "value": 237\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 24\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Merge onto <b>Robert F. Wagner Sr. Pl</b>",\n          "distance": {\n            "text": "256 ft",\n            "value": 78\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 22\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Turn <b>right</b> onto <b>Pearl St</b><div style=\\"font-size:0.9em\\">Toll road</div>",\n          "distance": {\n            "text": "351 ft",\n            "value": 107\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 34\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Continue onto <b>St James Pl</b>",\n          "distance": {\n            "text": "0.2 mi",\n            "value": 313\n          },\n          "duration": {\n            "text": "2 mins",\n            "value": 108\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Turn <b>left</b> onto <b>Worth St</b>",\n          "distance": {\n            "text": "0.3 mi",\n            "value": 484\n          },\n          "duration": {\n            "text": "2 mins",\n            "value": 142\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Turn <b>left</b> onto <b>Federal Plaza</b>/<wbr/><b>Lafayette St</b><div style=\\"font-size:0.9em\\">Continue to follow Lafayette St</div>",\n          "distance": {\n            "text": "0.1 mi",\n            "value": 223\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 59\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Continue onto <b>Centre St</b>",\n          "distance": {\n            "text": "0.1 mi",\n            "value": 229\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 79\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Merge onto <b>Park Row</b>",\n          "distance": {\n            "text": "66 ft",\n            "value": 20\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 5\n          },\n          "travel_mode": "DRIVING"\n        },\n        {\n          "instructions": "Turn <b>right</b><div style=\\"font-size:0.9em\\">Partial restricted usage road</div>",\n          "distance": {\n            "text": "200 ft",\n            "value": 61\n          },\n          "duration": {\n            "text": "1 min",\n            "value": 12\n          },\n          "travel_mode": "DRIVING"\n        }\n      ]\n    }\n  ]\n}'}]}, 'id': '4'}
-
-```
-
-
-Batch Example 
-
-
-
-
-### 3. Local MCP Client
-Setup Account and make sure you have enough [credit](https://deepnlp.org/workspace/billing) assiciated with the access_key, googles-map perplexity, google-search, bing-search will be in free-tier of discounted API range.
-
-
-Install 
-
-
-```
-pip install mcp-marketplace[mcp_tool_use,onekey_mcp_router]
-
-```
-
-Start the client and your customized APIs for batch usage
-
-```
-
-export DEEPNLP_ONEKEY_ROUTER_ACCESS="{your_acess_key}"
-
-mcpm run --port 5000
-mcpm run --port 5000 --config mcp_config.json
-
-```
-
-if you don't setup up your customized config, it will directs to use a default mcp_config.json with 30-50 building mcps.
-
-
-
-```
-{
-    "mcpServers":{
-        "deepnlp-onekey-google-maps": {
-            "url": "https://agent.deepnlp.org/mcp?server_name=google-maps&onekey=BETA_TEST_KEY_OCT_2025"
-        },
-        "deepnlp-onekey-perplexity": {
-            "url": "https://agent.deepnlp.org/mcp?server_name=perplexity&onekey=BETA_TEST_KEY_OCT_2025"
-        }
-    }
-}
-```
-
-Test the APIs on your machine, you can use curl or python package
-
-
-```
-
-curl -X POST -H "Content-Type: application/json" -d '{
-    "server_id": "puppeteer",
-    "tool_name": "puppeteer_navigate",
-    "tool_input": {
-        "url": "https://arxiv.org/list/cs/new"
-    }
-}' http://127.0.0.1:5000/api/query
-
-```
-
-Result 
-```
-{"success":true,"data":["Navigated to https://arxiv.org/list/cs/new"],"error":null}%
-```
-
-
-```
-python run_mcp_request.py
-
-## define input_params
-        input_params = {
-            "server_id": "amap-amap-sse", 
-            "tool_name": 'maps_weather',
-            "tool_input": {
-                "city": "乌鲁木齐"
-            }
-        }
-
-```
-
-Result
-```
-{'success': True, 'data': ['{"city":"乌鲁木齐市","forecasts":[{"date":"2025-06-30","week":"1","dayweather":"多云","nightweather":"多云","daytemp":"31","nighttemp":"20","daywind":"西北","nightwind":"西北","daypower":"1-3","nightpower":"1-3","daytemp_float":"31.0","nighttemp_float":"20.0"},{"date":"2025-07-01","week":"2","dayweather":"多云","nightweather":"多云","daytemp":"28","nighttemp":"20","daywind":"西北","nightwind":"西北","daypower":"1-3","nightpower":"1-3","daytemp_float":"28.0","nighttemp_float":"20.0"},{"date":"2025-07-02","week":"3","dayweather":"多云","nightweather":"多云","daytemp":"28","nighttemp":"20","daywind":"西北","nightwind":"西北","daypower":"1-3","nightpower":"1-3","daytemp_float":"28.0","nighttemp_float":"20.0"},{"date":"2025-07-03","week":"4","dayweather":"多云","nightweather":"晴","daytemp":"30","nighttemp":"21","daywind":"西北","nightwind":"西北","daypower":"1-3","nightpower":"1-3","daytemp_float":"30.0","nighttemp_float":"21.0"}]}'], 'error': None}
-```
-
-
-
 # List of MCP Servers Requires Keys Supported By OneKey MCP Router
+
+## Beta Test OneKey Router Keys
+```
+export DEEPNLP_ONEKEY_ROUTER_ACCESS=BETA_TEST_KEY_OCT_2025 
+```
 
 ## List of MCP Router URL for Other MCP Configuration
 
@@ -219,9 +55,6 @@ Result
 | Office Doc       | Notion MCP Server | [NotionAPI MCP Server Config](https://www.deepnlp.org/store/ai-agent/ai-agent/pub-makenotion/notion-mcp-server)                         | https://agent.deepnlp.org/mcp?server_name=notionApi&onekey={DEEPNLP_ONEKEY_ROUTER_ACCESS}                | [Web Demo](https://agent.deepnlp.org/agent/mcp_tool_use?server=makenotion/notion-mcp-server)                                            |
 | Coding           | GitHub MCP        | [GitHub MCP Server Config](https://www.deepnlp.org/store/mcp-server/mcp-server/pub-github/github-mcp-server)                            | https://agent.deepnlp.org/mcp?server_name=github&onekey={DEEPNLP_ONEKEY_ROUTER_ACCESS}                   | [Web Demo](https://agent.deepnlp.org/agent/mcp_tool_use?server=github/github-mcp-server)                                                |
 | Coding | Semgrep MCP       | [SegmGrep MCP Server Config](https://www.deepnlp.org/store/ai-agent/ai-agent/pub-semgrep/semgrep)                                                                                                          | https://agent.deepnlp.org/mcp?server_name=semgrep&onekey={DEEPNLP_ONEKEY_ROUTER_ACCESS}                  | [Web Demo](https://agent.deepnlp.org/agent/mcp_tool_use?server=semgrep/semgrep)                                                                |
-
-
-
 
 
 ### Usage and Beta Test
@@ -586,4 +419,6 @@ playwright Map MCP-DeepNLP Onekey Router
     }
 }
 ```
+
+
 
